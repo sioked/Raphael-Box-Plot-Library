@@ -30,16 +30,42 @@
     }
   ];
   Raphael(function() {
-    var currentMargin, cursor, datapoint, height, horizontals, i, margin, r, scale, tick, verticals, width, xmargin, ymax, ymin, _i, _j, _k, _len, _len2, _len3, _results;
+    var boxwidth, calcYScale, currentMargin, cursor, datapoint, genPoint, height, margin, r, tick, verticals, width, x0, xmargin, y0, yscale, _i, _j, _len, _len2, _ref, _results;
     height = options.height;
     width = options.width;
     margin = options.margin;
+    calcYScale = function() {
+      var i, scale, ymax, ymin;
+      ymax = Math.max.apply(Math, (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = data.length; _i < _len; _i++) {
+          i = data[_i];
+          _results.push(i.max);
+        }
+        return _results;
+      })());
+      ymin = Math.min.apply(Math, (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = data.length; _i < _len; _i++) {
+          i = data[_i];
+          _results.push(i.min);
+        }
+        return _results;
+      })());
+      return scale = 1 / ((ymax - ymin) / (height - margin));
+    };
+    genPoint = function(x, y) {
+      return [x + margin, height - margin - y];
+    };
     window.r = r = Raphael('canvas', width, height);
-    r.path("M" + margin + ",0L" + margin + "," + (height - margin) + "L" + width + "," + (height - margin));
+    _ref = genPoint(0, 0), x0 = _ref[0], y0 = _ref[1];
+    r.path("M" + x0 + ",0L" + x0 + "," + y0 + "L" + width + "," + y0);
     verticals = (function() {
-      var _ref, _results;
+      var _ref2, _results;
       _results = [];
-      for (tick = 0, _ref = height - margin; 0 <= _ref ? tick <= _ref : tick >= _ref; 0 <= _ref ? tick++ : tick--) {
+      for (tick = 0, _ref2 = height - margin; 0 <= _ref2 ? tick <= _ref2 : tick >= _ref2; 0 <= _ref2 ? tick++ : tick--) {
         if (tick % 20 === 0) {
           _results.push(tick);
         }
@@ -48,21 +74,7 @@
     })();
     for (_i = 0, _len = verticals.length; _i < _len; _i++) {
       tick = verticals[_i];
-      r.path("M" + (margin - 2) + "," + tick + "L" + (margin + 2) + "," + tick);
-    }
-    horizontals = (function() {
-      var _results;
-      _results = [];
-      for (tick = margin; margin <= width ? tick <= width : tick >= width; margin <= width ? tick++ : tick--) {
-        if (tick % 20 === 0) {
-          _results.push(tick);
-        }
-      }
-      return _results;
-    })();
-    for (_j = 0, _len2 = horizontals.length; _j < _len2; _j++) {
-      tick = horizontals[_j];
-      r.path("M" + tick + "," + (height - margin - 2) + "L" + tick + "," + (height - margin + 2));
+      r.path("M" + (x0 - 2) + "," + tick + "L" + (x0 + 2) + "," + tick);
     }
     cursor = void 0;
     document.getElementById('canvas').onmousemove = function(e) {
@@ -82,35 +94,32 @@
       }
     };
     xmargin = (width - 2 * margin) / (data.length + 1);
-    ymax = Math.max.apply(Math, (function() {
-      var _k, _len3, _results;
-      _results = [];
-      for (_k = 0, _len3 = data.length; _k < _len3; _k++) {
-        i = data[_k];
-        _results.push(i.max);
-      }
-      return _results;
-    })());
-    log("ymax is " + ymax);
-    ymin = Math.min.apply(Math, (function() {
-      var _k, _len3, _results;
-      _results = [];
-      for (_k = 0, _len3 = data.length; _k < _len3; _k++) {
-        i = data[_k];
-        _results.push(i.min);
-      }
-      return _results;
-    })());
-    log("ymin is " + ymin);
-    scale = 1 / ((ymax - ymin) / (height - margin));
-    log(scale);
-    currentMargin = xmargin + margin;
+    yscale = calcYScale();
+    boxwidth = 20;
+    currentMargin = xmargin;
     _results = [];
-    for (_k = 0, _len3 = data.length; _k < _len3; _k++) {
-      datapoint = data[_k];
+    for (_j = 0, _len2 = data.length; _j < _len2; _j++) {
+      datapoint = data[_j];
       _results.push((function(datapoint) {
-        r.path("M" + currentMargin + "," + (height - margin - datapoint.min * scale) + "L" + currentMargin + "," + (height - margin - datapoint.max * scale));
-        r.path("M" + (currentMargin - 5) + "," + (height - margin - datapoint.med * scale) + "L" + (currentMargin + 5) + "," + (height - margin - datapoint.med * scale));
+        var box, lquart, max, med, min, rheight, uquart;
+        min = genPoint(currentMargin, datapoint.min * yscale);
+        max = genPoint(currentMargin, datapoint.max * yscale);
+        med = genPoint(currentMargin, datapoint.med * yscale);
+        uquart = genPoint(currentMargin, datapoint.upquart * yscale);
+        lquart = genPoint(currentMargin, datapoint.loquart * yscale);
+        rheight = lquart[1] - uquart[1];
+        r.path("M" + min[0] + "," + min[1] + "L" + max[0] + "," + max[1]);
+        r.path("M" + (med[0] - boxwidth / 2) + "," + med[1] + "L" + (med[0] + boxwidth / 2) + "," + med[1]);
+        box = r.rect(uquart[0] - boxwidth / 2, uquart[1], boxwidth, rheight);
+        box.attr({
+          fill: Raphael.getColor(),
+          'fill-opacity': 0.0
+        });
+        box.hover(function() {
+          return box.animate({
+            'fill-opacity': 0.5
+          }, 500);
+        });
         return currentMargin = currentMargin + xmargin;
       })(datapoint));
     }
