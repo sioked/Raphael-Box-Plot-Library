@@ -100,7 +100,7 @@
     };
     xmargin = (width - 2 * margin) / (data.length + 1);
     yscale = calcYScale();
-    boxwidth = 20;
+    boxwidth = 30;
     currentMargin = xmargin;
     _results = [];
     for (_j = 0, _len2 = data.length; _j < _len2; _j++) {

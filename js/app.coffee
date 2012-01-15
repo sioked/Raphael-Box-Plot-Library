@@ -90,7 +90,7 @@ Raphael ->
   xmargin = (width - 2*margin)/(data.length + 1)
 
   yscale = calcYScale()
-  boxwidth = 20    
+  boxwidth = 30    
   currentMargin = xmargin 
   for datapoint in data
     do (datapoint) ->
