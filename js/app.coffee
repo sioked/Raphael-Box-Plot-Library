@@ -4,31 +4,32 @@ log = (text) ->
 options = 
   height : 400
   width  : 600
-  margin : 20
+  margin : 40 #margin on the left and bottom of the chart
+  vticks : 15 #number of vertical tickets
   
 data = [
   {
     title : 'group 1'
-    max : 100
-    min : 0
-    med : 50
-    upquart : 75
-    loquart : 25
+    max : 10
+    min : 2
+    med : 5
+    upquart : 7.5
+    loquart : 2.5
     
   }, {
     title : 'group 2'
-    max : 200
-    min : 30
-    med : 100
-    upquart : 150
-    loquart : 80
+    max : 20
+    min : 3
+    med : 10
+    upquart : 15
+    loquart : 8
   }, {
     title : 'group 3'
-    max : 300
-    min : 80
-    med : 150
-    upquart : 200
-    loquart : 120
+    max : 30
+    min : 8
+    med : 15
+    upquart : 20
+    loquart : 12
   }
 ]
 
@@ -36,29 +37,40 @@ Raphael ->
   height = options.height
   width = options.width
   margin = options.margin
+  vticks = options.vticks
 
   calcYScale = ->
     #Calculate the scale of each pixel on the Y axis
     ymax = Math.max.apply Math, (i.max for i in data)
-    ymin = Math.min.apply Math, (i.min for i in data)
+    #ymin = Math.min.apply Math, (i.min for i in data)
     #scale is the number of pixels per data point
     #ymax - ymin = total pieces of data represented
     # divide by number of pixels available = total data per visible pixel
     # inverted to give pixels per data point
-    scale = 1 / ((ymax - ymin) / (height-margin))
+    scale = 1 / ((ymax - 0) / (height-margin))
+    # scale * datapoint = pixels 
     #To use, multiply the scale by the number of data points to calculate the offset pixels
   
-  # Generate point based on x-y coordinates (raphael calculates y in upper left corner) 
+  
   genPoint = (x, y) ->
+    # Generate point based on x-y coordinates (raphael calculates y in upper left corner) 
     return [x + margin, height - margin - y]
     
   # Set up the graph
   window.r = r = Raphael('canvas', width, height)
   [x0,y0] = genPoint(0,0)
+  vheight = height - margin
+  vtickpx = Math.round(vheight / vticks)
+  scale = calcYScale()
   #[xmax, ymax] = genPoint(1,1)
   r.path "M#{x0},0L#{x0},#{y0}L#{width},#{y0}"
-  verticals = (tick for tick in [0..height-margin] when tick % 20 is 0)
-  r.path "M#{x0-2},#{tick}L#{x0+2},#{tick}" for tick in verticals
+  verticals = (tick for tick in [0..height-margin] when tick % vtickpx is 0)
+  for tick in verticals
+    #tick is in pixels
+    do (tick) ->
+      r.path "M#{x0-2},#{tick}L#{x0+2},#{tick}"
+      point = genPoint(0, tick) 
+      r.text margin/2, point[1], Math.round(tick/scale*10)/10
   # horizontals = (tick for tick in [margin..width] when tick % 20 is 0)
   # r.path "M#{tick},#{y0-2}L#{tick},#{y0+2}" for tick in horizontals
   
@@ -85,6 +97,8 @@ Raphael ->
       #First, set the point on the x axis
       axis = genPoint( currentMargin, 0);
       r.path "M#{axis[0]},#{axis[1]-4}L#{axis[0]},#{axis[1]+4}"
+      r.text axis[0], axis[1] + margin/2, datapoint.title
+      
       min = genPoint(currentMargin, datapoint.min * yscale)
       max = genPoint(currentMargin, datapoint.max * yscale)
       med = genPoint(currentMargin, datapoint.med * yscale)
