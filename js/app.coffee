@@ -8,6 +8,7 @@ options =
   
 data = [
   {
+    title : 'group 1'
     max : 100
     min : 0
     med : 50
@@ -15,12 +16,14 @@ data = [
     loquart : 25
     
   }, {
+    title : 'group 2'
     max : 200
     min : 30
     med : 100
     upquart : 150
     loquart : 80
   }, {
+    title : 'group 3'
     max : 300
     min : 80
     med : 150
@@ -79,6 +82,9 @@ Raphael ->
   currentMargin = xmargin 
   for datapoint in data
     do (datapoint) ->
+      #First, set the point on the x axis
+      axis = genPoint( currentMargin, 0);
+      r.path "M#{axis[0]},#{axis[1]-4}L#{axis[0]},#{axis[1]+4}"
       min = genPoint(currentMargin, datapoint.min * yscale)
       max = genPoint(currentMargin, datapoint.max * yscale)
       med = genPoint(currentMargin, datapoint.med * yscale)
@@ -86,9 +92,13 @@ Raphael ->
       lquart = genPoint(currentMargin, datapoint.loquart * yscale)
       rheight = lquart[1] - uquart[1]
       r.path "M#{min[0]},#{min[1]}L#{max[0]},#{max[1]}"
-      r.path "M#{med[0] - boxwidth/2},#{med[1]}L#{med[0] + boxwidth/2},#{med[1]}"
       box = r.rect uquart[0]-boxwidth/2, uquart[1], boxwidth, rheight
-      box.attr { fill: Raphael.getColor(), 'fill-opacity': 0.0 }
-      box.hover ->
-        box.animate {'fill-opacity': 0.5}, 500
+      #Display the median line on Top of the box
+      r.path "M#{med[0] - boxwidth/2},#{med[1]}L#{med[0] + boxwidth/2},#{med[1]}"
+      box.attr { fill: Raphael.getColor(), 'fill-opacity': 1, title: datapoint.title, stroke: '' }
+      # Cool effects, but not really working well
+      # box.mouseover -> 
+      #         box.stop().animate {'stroke-width': 3}, 200, 'linear'
+      #       box.mouseout ->
+      #         box.stop().animate { 'stroke-width': '' }, 200, 'linear'
       currentMargin=currentMargin + xmargin

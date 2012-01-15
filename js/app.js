@@ -10,18 +10,21 @@
   };
   data = [
     {
+      title: 'group 1',
       max: 100,
       min: 0,
       med: 50,
       upquart: 75,
       loquart: 25
     }, {
+      title: 'group 2',
       max: 200,
       min: 30,
       med: 100,
       upquart: 150,
       loquart: 80
     }, {
+      title: 'group 3',
       max: 300,
       min: 80,
       med: 150,
@@ -101,7 +104,9 @@
     for (_j = 0, _len2 = data.length; _j < _len2; _j++) {
       datapoint = data[_j];
       _results.push((function(datapoint) {
-        var box, lquart, max, med, min, rheight, uquart;
+        var axis, box, lquart, max, med, min, rheight, uquart;
+        axis = genPoint(currentMargin, 0);
+        r.path("M" + axis[0] + "," + (axis[1] - 4) + "L" + axis[0] + "," + (axis[1] + 4));
         min = genPoint(currentMargin, datapoint.min * yscale);
         max = genPoint(currentMargin, datapoint.max * yscale);
         med = genPoint(currentMargin, datapoint.med * yscale);
@@ -109,16 +114,13 @@
         lquart = genPoint(currentMargin, datapoint.loquart * yscale);
         rheight = lquart[1] - uquart[1];
         r.path("M" + min[0] + "," + min[1] + "L" + max[0] + "," + max[1]);
-        r.path("M" + (med[0] - boxwidth / 2) + "," + med[1] + "L" + (med[0] + boxwidth / 2) + "," + med[1]);
         box = r.rect(uquart[0] - boxwidth / 2, uquart[1], boxwidth, rheight);
+        r.path("M" + (med[0] - boxwidth / 2) + "," + med[1] + "L" + (med[0] + boxwidth / 2) + "," + med[1]);
         box.attr({
           fill: Raphael.getColor(),
-          'fill-opacity': 0.0
-        });
-        box.hover(function() {
-          return box.animate({
-            'fill-opacity': 0.5
-          }, 500);
+          'fill-opacity': 1,
+          title: datapoint.title,
+          stroke: ''
         });
         return currentMargin = currentMargin + xmargin;
       })(datapoint));
