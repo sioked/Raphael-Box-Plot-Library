@@ -1,133 +1,114 @@
 (function() {
-  var data, log, options;
-  log = function(text) {
-    return console.log(text);
-  };
-  options = {
-    height: 400,
-    width: 600,
-    margin: 40,
-    vticks: 15
-  };
-  data = [
-    {
-      title: 'group 1',
-      max: 10,
-      min: 2,
-      med: 5,
-      upquart: 7.5,
-      loquart: 2.5
-    }, {
-      title: 'group 2',
-      max: 20,
-      min: 3,
-      med: 10,
-      upquart: 15,
-      loquart: 8
-    }, {
-      title: 'group 3',
-      max: 30,
-      min: 8,
-      med: 15,
-      upquart: 20,
-      loquart: 12
-    }
-  ];
   Raphael(function() {
-    var boxwidth, calcYScale, currentMargin, cursor, datapoint, genPoint, height, margin, r, scale, tick, verticals, vheight, vtickpx, vticks, width, x0, xmargin, y0, yscale, _fn, _i, _j, _len, _len2, _ref, _results;
-    height = options.height;
-    width = options.width;
-    margin = options.margin;
-    vticks = options.vticks;
-    calcYScale = function() {
-      var i, scale, ymax;
-      ymax = Math.max.apply(Math, (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          i = data[_i];
-          _results.push(i.max);
-        }
-        return _results;
-      })());
-      return scale = 1 / ((ymax - 0) / (height - margin));
+    var data, options, r;
+    options = {
+      height: 600,
+      width: 1100,
+      margin: 40,
+      vticks: 15,
+      boxwidth: 15
     };
-    genPoint = function(x, y) {
-      return [x + margin, height - margin - y];
-    };
-    window.r = r = Raphael('canvas', width, height);
-    _ref = genPoint(0, 0), x0 = _ref[0], y0 = _ref[1];
-    vheight = height - margin;
-    vtickpx = Math.round(vheight / vticks);
-    scale = calcYScale();
-    r.path("M" + x0 + ",0L" + x0 + "," + y0 + "L" + width + "," + y0);
-    verticals = (function() {
-      var _ref2, _results;
-      _results = [];
-      for (tick = 0, _ref2 = height - margin; 0 <= _ref2 ? tick <= _ref2 : tick >= _ref2; 0 <= _ref2 ? tick++ : tick--) {
-        if (tick % vtickpx === 0) {
-          _results.push(tick);
-        }
+    data = [
+      {
+        "med": "1297.5",
+        "title": "Male 11 & Under",
+        "upquart": "1617.0",
+        "max": "2788.0",
+        "min": "50.0",
+        "loquart": "1148.5"
+      }, {
+        "med": "1366.0",
+        "title": "Female 11 & Under",
+        "upquart": "1657.5",
+        "max": "2750.0",
+        "min": "925.0",
+        "loquart": "1256.0"
+      }, {
+        "med": "1148.5",
+        "title": "Male 12-18",
+        "upquart": "1269.0",
+        "max": "2287.0",
+        "min": "767.0",
+        "loquart": "1012.0"
+      }, {
+        "med": "1430.0",
+        "title": "Female 12-18",
+        "upquart": "1845.0",
+        "max": "2817.0",
+        "min": "744.0",
+        "loquart": "1222.0"
+      }, {
+        "med": "1127.0",
+        "title": "Male 19-29",
+        "upquart": "1339.0",
+        "max": "3447.0",
+        "min": "639.0",
+        "loquart": "1011.0"
+      }, {
+        "med": "1399.0",
+        "title": "Female 19-29",
+        "upquart": "1676.5",
+        "max": "3436.0",
+        "min": "773.0",
+        "loquart": "1210.0"
+      }, {
+        "med": "1182.0",
+        "title": "Male 30-39",
+        "upquart": "1427.5",
+        "max": "4117.0",
+        "min": "572.0",
+        "loquart": "1036.0"
+      }, {
+        "med": "1418.0",
+        "title": "Female 30-39",
+        "upquart": "1732.0",
+        "max": "3615.0",
+        "min": "758.0",
+        "loquart": "1189.5"
+      }, {
+        "med": "1223.5",
+        "title": "Male 40-49",
+        "upquart": "1459.0",
+        "max": "3385.0",
+        "min": "718.0",
+        "loquart": "1052.0"
+      }, {
+        "med": "1452.0",
+        "title": "Female 40-49",
+        "upquart": "1842.0",
+        "max": "5762.0",
+        "min": "677.0",
+        "loquart": "1206.0"
+      }, {
+        "med": "1270.0",
+        "title": "Male 50-59",
+        "upquart": "1542.0",
+        "max": "5439.0",
+        "min": "697.0",
+        "loquart": "1107.0"
+      }, {
+        "med": "1568.0",
+        "title": "Female 50-59",
+        "upquart": "2019.5",
+        "max": "4330.0",
+        "min": "1006.0",
+        "loquart": "1311.0"
+      }, {
+        "med": "1366.0",
+        "title": "Male 60-69",
+        "upquart": "1669.0",
+        "max": "2786.0",
+        "min": "906.0",
+        "loquart": "1139.0"
+      }, {
+        "med": "1621.5",
+        "title": "Female 60-69",
+        "upquart": "2059.0",
+        "max": "5208.0",
+        "min": "994.0",
+        "loquart": "1397.0"
       }
-      return _results;
-    })();
-    _fn = function(tick) {
-      var point;
-      r.path("M" + (x0 - 2) + "," + tick + "L" + (x0 + 2) + "," + tick);
-      point = genPoint(0, tick);
-      return r.text(margin / 2, point[1], Math.round(tick / scale * 10) / 10);
-    };
-    for (_i = 0, _len = verticals.length; _i < _len; _i++) {
-      tick = verticals[_i];
-      _fn(tick);
-    }
-    cursor = void 0;
-    document.getElementById('canvas').onmousemove = function(e) {
-      var y;
-      y = e.offsetY;
-      if (cursor != null) {
-        if (typeof cursor.remove === "function") {
-          cursor.remove();
-        }
-      }
-      cursor = void 0;
-      if ((0 < y && y < height - margin)) {
-        cursor = r.path("M" + 0 + "," + y + "L" + width + "," + y);
-        return cursor.attr({
-          opacity: .5
-        });
-      }
-    };
-    xmargin = (width - 2 * margin) / (data.length + 1);
-    yscale = calcYScale();
-    boxwidth = 30;
-    currentMargin = xmargin;
-    _results = [];
-    for (_j = 0, _len2 = data.length; _j < _len2; _j++) {
-      datapoint = data[_j];
-      _results.push((function(datapoint) {
-        var axis, box, lquart, max, med, min, rheight, uquart;
-        axis = genPoint(currentMargin, 0);
-        r.path("M" + axis[0] + "," + (axis[1] - 4) + "L" + axis[0] + "," + (axis[1] + 4));
-        r.text(axis[0], axis[1] + margin / 2, datapoint.title);
-        min = genPoint(currentMargin, datapoint.min * yscale);
-        max = genPoint(currentMargin, datapoint.max * yscale);
-        med = genPoint(currentMargin, datapoint.med * yscale);
-        uquart = genPoint(currentMargin, datapoint.upquart * yscale);
-        lquart = genPoint(currentMargin, datapoint.loquart * yscale);
-        rheight = lquart[1] - uquart[1];
-        r.path("M" + min[0] + "," + min[1] + "L" + max[0] + "," + max[1]);
-        box = r.rect(uquart[0] - boxwidth / 2, uquart[1], boxwidth, rheight);
-        r.path("M" + (med[0] - boxwidth / 2) + "," + med[1] + "L" + (med[0] + boxwidth / 2) + "," + med[1]);
-        box.attr({
-          fill: Raphael.getColor(),
-          'fill-opacity': 1,
-          title: datapoint.title,
-          stroke: ''
-        });
-        return currentMargin = currentMargin + xmargin;
-      })(datapoint));
-    }
-    return _results;
+    ];
+    return r = boxplot.init('canvas', data, options);
   });
 }).call(this);
