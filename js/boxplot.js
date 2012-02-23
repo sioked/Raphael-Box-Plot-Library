@@ -14,10 +14,12 @@
     return [x + margin, height - margin - y];
   };
   boxplot.init = function(location, data, options) {
-    var canvas;
+    var canvas, elem;
     if (!Raphael) {
       throw new Error("Raphael.js must be included before building the graph");
     }
+    elem = typeof location === "string" ? document.getElementById(location) : location;
+    elem.innerHTML = "";
     height = options.height || 600;
     width = options.width || 800;
     margin = options.margin || 40;

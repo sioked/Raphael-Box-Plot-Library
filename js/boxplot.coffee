@@ -17,6 +17,8 @@ genPoint = (x, y) ->
 
 boxplot.init = (location, data, options) ->
   throw new Error("Raphael.js must be included before building the graph") unless Raphael
+  elem = if typeof location is "string" then document.getElementById(location) else location
+  elem.innerHTML = ""
   height = options.height || 600
   width = options.width || 800
   margin = options.margin || 40
