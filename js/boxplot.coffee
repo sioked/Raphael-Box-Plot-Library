@@ -5,7 +5,10 @@ margin = 0 #Margin on bottom and left
 vticks = 0 #Number of vertical ticks to display
 boxwidth = 0 #width of each individual box
 r = undefined
-boxplot = window.boxplot ||= {}
+yscale = undefined
+ymax = undefined
+formatter = undefined
+boxplot = window.boxplot = {}
 
 ## Global private functions
 log = (text) ->
@@ -15,8 +18,9 @@ genPoint = (x, y) ->
   # Generate point based on x-y coordinates (raphael calculates y in upper left corner) 
   return [x + margin, height - margin - y]
 
-boxplot.init = (location, data, options) ->
+boxplot.init = (location, data, options, valueFormatter) ->
   throw new Error("Raphael.js must be included before building the graph") unless Raphael
+  formatter = valueFormatter || null
   elem = if typeof location is "string" then document.getElementById(location) else location
   elem.innerHTML = ""
   height = options.height || 600
@@ -40,14 +44,21 @@ boxplot.calcYScale = (data) ->
   #ymax - ymin = total pieces of data represented
   # divide by number of pixels available = total data per visible pixel
   # inverted to give pixels per data point
-  scale = 1 / ((ymax - 0) / (height-margin))
+  scale = yscale = 1 / ((ymax - 0) / (height-margin))
+  scale
   # scale * datapoint = pixels 
   #To use, multiply the scale by the number of data points to calculate the offset pixels
-  
+
+boxplot.calculateYValue = (ypx) ->
+  # Pixels / scale = datapoint
+  value = Math.round((ymax - ypx/yscale)*10)/10
+  return formatter(value) if formatter
+  return value
+
 boxplot.drawAxes = (r, data, options) ->
   [x0,y0] = genPoint(0,0)
-  vheight = height - margin
-  vtickpx = Math.round(vheight / vticks)
+  vheight = height - margin #(600-20 = 580)
+  vtickpx = Math.round(vheight / vticks) #(580/15 = 39) 
   scale = boxplot.calcYScale(data)
   r.path "M#{x0},0L#{x0},#{y0}L#{width},#{y0}"
   verticals = (tick for tick in [0..vheight] when tick % vtickpx is 0)
@@ -55,26 +66,29 @@ boxplot.drawAxes = (r, data, options) ->
     #tick is in pixels
     do (tick) ->
       r.path "M#{x0-2},#{tick}L#{x0+2},#{tick}"
-      point = genPoint(0, tick) 
-      r.text margin/2, point[1], Math.round(tick/scale*10)/10
-  r
+      r.text margin/2, tick, boxplot.calculateYValue(tick)
   
 boxplot.horizontalHover = ->
   # Set up the hover effect line
-  cursor = undefined;
+  cursor = undefined
+  title = undefined
   r.canvas.onmousemove = (e)->
     y = e.offsetY
     cursor?.remove?()
+    title?.remove?()
     cursor = undefined
+    title = undefined
     if 0 < y < height - margin
       cursor = r.path "M#{0},#{y+3}L#{width},#{y+3}"
       cursor.attr {opacity:.5}
+      title = r.text margin*1.5, y+20, boxplot.calculateYValue(y+3)
+    title  
       
 boxplot.drawData = (data) ->
   # Add a line for min & max
   # First calculate where on the x-axis to put it
   # Actual width divided by # of margins (if 2 data points, 3 margins)
-  xmargin = (width - 2*margin)/(data.length + 1)
+  xmargin = (width - margin)/(data.length + 1)
   yscale = boxplot.calcYScale(data)
   boxwidth = 15    
   currentMargin = xmargin 
@@ -102,3 +116,5 @@ boxplot.drawData = (data) ->
       box.mouseout ->
         box.stop().animate { 'stroke-width': 0 }, 200, 'linear'
       currentMargin=currentMargin + xmargin
+      currentMargin
+  r
