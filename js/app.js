@@ -6,7 +6,17 @@
       width: 750,
       margin: 50,
       vticks: 15,
-      boxwidth: 15
+      boxwidth: 15,
+      textAttrs: [
+        {
+          stroke: "#FFF"
+        }
+      ],
+      defaultAttrs: [
+        {
+          stroke: "#FFF"
+        }
+      ]
     };
     data = [
       {
@@ -117,6 +127,7 @@
         }
       }
     };
-    return r = boxplot.init('canvas', data, options, formatter);
+    r = boxplot.init('canvas', data, options, formatter);
+    return r.ylabels.attr("font-size", 14);
   });
 }).call(this);

@@ -1,15 +1,18 @@
 (function() {
-  var boxplot, boxwidth, formatter, genPoint, height, log, margin, r, vticks, width, ymax, yscale;
+  var boxplot, boxwidth, defaultAttrs, formatter, genPoint, graph, height, log, margin, r, textAttrs, vticks, width, ymax, yscale;
   height = 0;
   width = 0;
   margin = 0;
   vticks = 0;
   boxwidth = 0;
-  r = void 0;
+  r = {};
   yscale = void 0;
   ymax = void 0;
   formatter = void 0;
   boxplot = window.boxplot = {};
+  graph = window.graph = [];
+  defaultAttrs = {};
+  textAttrs = {};
   log = function(text) {
     return console.log(text);
   };
@@ -29,8 +32,21 @@
     margin = options.margin || 40;
     vticks = options.vticks || 15;
     boxwidth = options.boxwidth || 15;
+    defaultAttrs = options.defaultAttrs || [
+      {
+        "stroke": "#000",
+        "stroke-width": "1"
+      }
+    ];
+    textAttrs = options.textAttrs || [
+      {
+        "stroke": "#000",
+        "font-size": 10
+      }
+    ];
     canvas = location;
-    r = Raphael(location, width, height);
+    r = boxplot.r = Raphael(location, width, height);
+    r.elems = r.set();
     boxplot.drawAxes(r, data);
     boxplot.horizontalHover();
     boxplot.drawData(data);
@@ -59,12 +75,13 @@
     return value;
   };
   boxplot.drawAxes = function(r, data, options) {
-    var scale, tick, verticals, vheight, vtickpx, x0, y0, _i, _len, _ref, _results;
+    var axes, scale, tick, verticals, vheight, vtickpx, x0, y0, _i, _len, _ref, _results;
     _ref = genPoint(0, 0), x0 = _ref[0], y0 = _ref[1];
     vheight = height - margin;
     vtickpx = Math.round(vheight / vticks);
     scale = boxplot.calcYScale(data);
-    r.path("M" + x0 + ",0L" + x0 + "," + y0 + "L" + width + "," + y0);
+    r.elems.push(axes = r.path("M" + x0 + ",0L" + x0 + "," + y0 + "L" + width + "," + y0));
+    axes.attr(defaultAttrs);
     verticals = (function() {
       var _results;
       _results = [];
@@ -79,8 +96,11 @@
     for (_i = 0, _len = verticals.length; _i < _len; _i++) {
       tick = verticals[_i];
       _results.push((function(tick) {
-        r.path("M" + (x0 - 2) + "," + tick + "L" + (x0 + 2) + "," + tick);
-        return r.text(margin / 2, tick, boxplot.calculateYValue(tick));
+        var tickElem, tickText;
+        r.elems.push(tickElem = r.path("M" + (x0 - 2) + "," + tick + "L" + (x0 + 2) + "," + tick));
+        r.elems.push(tickText = r.text(margin / 2, tick, boxplot.calculateYValue(tick)));
+        tickElem.attr(defaultAttrs);
+        return tickText.attr(textAttrs);
       })(tick));
     }
     return _results;
@@ -105,11 +125,13 @@
       cursor = void 0;
       title = void 0;
       if ((0 < y && y < height - margin)) {
-        cursor = r.path("M" + 0 + "," + (y + 3) + "L" + width + "," + (y + 3));
+        r.elems.push(cursor = r.path("M" + 0 + "," + (y + 3) + "L" + width + "," + (y + 3)));
         cursor.attr({
           opacity: .5
         });
-        title = r.text(margin * 1.5, y + 20, boxplot.calculateYValue(y + 3));
+        cursor.attr(defaultAttrs);
+        r.elems.push(title = r.text(margin * 1.5, y + 20, boxplot.calculateYValue(y + 3)));
+        title.attr(textAttrs);
       }
       return title;
     };
@@ -120,20 +142,24 @@
     yscale = boxplot.calcYScale(data);
     boxwidth = 15;
     currentMargin = xmargin;
+    r.ylabels = r.set();
     _fn = function(datapoint) {
-      var axis, box, lquart, max, med, min, rheight, uquart;
+      var axis, box, lquart, max, med, medLine, min, rheight, uquart, vertLine, yLabel, ytick;
       axis = genPoint(currentMargin, 0);
-      r.path("M" + axis[0] + "," + (axis[1] - 4) + "L" + axis[0] + "," + (axis[1] + 4));
-      r.text(axis[0], axis[1] + margin / 2, datapoint.title);
+      r.elems.push(ytick = r.path("M" + axis[0] + "," + (axis[1] - 4) + "L" + axis[0] + "," + (axis[1] + 4)));
+      r.ylabels.push(yLabel = r.text(axis[0], axis[1] + margin / 2, datapoint.title));
+      ytick.attr(defaultAttrs);
+      yLabel.attr(textAttrs);
       min = genPoint(currentMargin, datapoint.min * yscale);
       max = genPoint(currentMargin, datapoint.max * yscale);
       med = genPoint(currentMargin, datapoint.med * yscale);
       uquart = genPoint(currentMargin, datapoint.upquart * yscale);
       lquart = genPoint(currentMargin, datapoint.loquart * yscale);
       rheight = lquart[1] - uquart[1];
-      r.path("M" + min[0] + "," + min[1] + "L" + max[0] + "," + max[1]);
-      box = r.rect(uquart[0] - boxwidth / 2, uquart[1], boxwidth, rheight);
-      r.path("M" + (med[0] - boxwidth / 2) + "," + med[1] + "L" + (med[0] + boxwidth / 2) + "," + med[1]);
+      r.elems.push(vertLine = r.path("M" + min[0] + "," + min[1] + "L" + max[0] + "," + max[1]));
+      vertLine.attr(defaultAttrs);
+      r.elems.push(box = r.rect(uquart[0] - boxwidth / 2, uquart[1], boxwidth, rheight));
+      box.attr(defaultAttrs);
       box.attr({
         fill: Raphael.getColor(),
         'fill-opacity': 1,
@@ -141,6 +167,8 @@
         stroke: "#333",
         "stroke-width": 0
       });
+      r.elems.push(medLine = r.path("M" + (med[0] - boxwidth / 2) + "," + med[1] + "L" + (med[0] + boxwidth / 2) + "," + med[1]));
+      medLine.attr(defaultAttrs);
       box.mouseover(function() {
         return box.stop().animate({
           'stroke-width': 2
