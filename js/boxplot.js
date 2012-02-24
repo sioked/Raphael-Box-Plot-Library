@@ -74,6 +74,13 @@
     }
     return value;
   };
+  boxplot.drawLineForValue = function(value) {
+    var line, ypx;
+    ypx = height - margin - yscale * value;
+    line = r.path("M" + margin + "," + ypx + "L" + width + "," + ypx);
+    line.attr(defaultAttrs);
+    return r.reference(line);
+  };
   boxplot.drawAxes = function(r, data, options) {
     var axes, scale, tick, verticals, vheight, vtickpx, x0, y0, _i, _len, _ref, _results;
     _ref = genPoint(0, 0), x0 = _ref[0], y0 = _ref[1];

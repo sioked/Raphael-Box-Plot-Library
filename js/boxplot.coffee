@@ -66,6 +66,12 @@ boxplot.calculateYValue = (ypx) ->
   value = Math.round((ymax - ypx/yscale)*10)/10
   return formatter(value) if formatter
   return value
+  
+boxplot.drawLineForValue = (value) ->
+  ypx = height - margin - yscale * value
+  line = r.path "M#{margin},#{ypx}L#{width},#{ypx}"
+  line.attr defaultAttrs
+  r.reference line
 
 boxplot.drawAxes = (r, data, options) ->
   [x0,y0] = genPoint(0,0)
