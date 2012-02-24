@@ -74,12 +74,24 @@
     }
     return value;
   };
-  boxplot.drawLineForValue = function(value) {
-    var line, ypx;
+  boxplot.drawLineForValue = function(value, title) {
+    var box, box_dims, line, text, ypx;
     ypx = height - margin - yscale * value;
     line = r.path("M" + margin + "," + ypx + "L" + width + "," + ypx);
     line.attr(defaultAttrs);
-    return r.reference(line);
+    text = r.text((width - margin) / 2 + margin, ypx, title);
+    text.attr(textAttrs);
+    box_dims = text.getBBox();
+    box = r.rect(box_dims.x - 1, box_dims.y, box_dims.width + 2, box_dims.height);
+    box.toBack();
+    line.toBack();
+    text.toFront();
+    text.attr("fill", "#000");
+    box.attr({
+      "fill": "#fff",
+      "opacity": .85
+    });
+    return r.reference = line;
   };
   boxplot.drawAxes = function(r, data, options) {
     var axes, scale, tick, verticals, vheight, vtickpx, x0, y0, _i, _len, _ref, _results;
@@ -105,9 +117,11 @@
       _results.push((function(tick) {
         var tickElem, tickText;
         r.elems.push(tickElem = r.path("M" + (x0 - 2) + "," + tick + "L" + (x0 + 2) + "," + tick));
-        r.elems.push(tickText = r.text(margin / 2, tick, boxplot.calculateYValue(tick)));
+        if (!(tick - vtickpx < 0)) {
+          r.elems.push(tickText = r.text(margin / 2, tick, boxplot.calculateYValue(tick)));
+        }
         tickElem.attr(defaultAttrs);
-        return tickText.attr(textAttrs);
+        return tickText != null ? tickText.attr(textAttrs) : void 0;
       })(tick));
     }
     return _results;
@@ -151,7 +165,7 @@
     currentMargin = xmargin;
     r.ylabels = r.set();
     _fn = function(datapoint) {
-      var axis, box, lquart, max, med, medLine, min, rheight, uquart, vertLine, yLabel, ytick;
+      var axis, box, hoverBox, lquart, max, med, medLine, min, rheight, uquart, vertLine, yLabel, ytick;
       axis = genPoint(currentMargin, 0);
       r.elems.push(ytick = r.path("M" + axis[0] + "," + (axis[1] - 4) + "L" + axis[0] + "," + (axis[1] + 4)));
       r.ylabels.push(yLabel = r.text(axis[0], axis[1] + margin / 2, datapoint.title));
@@ -166,7 +180,12 @@
       r.elems.push(vertLine = r.path("M" + min[0] + "," + min[1] + "L" + max[0] + "," + max[1]));
       vertLine.attr(defaultAttrs);
       r.elems.push(box = r.rect(uquart[0] - boxwidth / 2, uquart[1], boxwidth, rheight));
-      box.attr(defaultAttrs);
+      hoverBox = r.rect(max[0] - boxwidth * 1.5 / 2, max[1], boxwidth * 1.5, min[1] - max[1]);
+      hoverBox.attr({
+        "stroke": "none",
+        "fill": "#F00",
+        "fill-opacity": 0
+      });
       box.attr({
         fill: Raphael.getColor(),
         'fill-opacity': 1,
@@ -176,15 +195,24 @@
       });
       r.elems.push(medLine = r.path("M" + (med[0] - boxwidth / 2) + "," + med[1] + "L" + (med[0] + boxwidth / 2) + "," + med[1]));
       medLine.attr(defaultAttrs);
-      box.mouseover(function() {
-        return box.stop().animate({
-          'stroke-width': 2
-        }, 200, 'linear');
+      hoverBox.mouseover(function() {
+        console.log("Hovered!");
+        box.stop().animate({
+          'stroke': "#FFF",
+          "stroke-width": 3
+        }, 400, 'linear');
+        return vertLine.stop().animate({
+          'stroke-width': 3,
+          'stroke': "#FFF"
+        }, 400, 'linear');
       });
-      box.mouseout(function() {
-        return box.stop().animate({
+      hoverBox.mouseout(function() {
+        box.stop().animate({
           'stroke-width': 0
         }, 200, 'linear');
+        return vertLine.stop().animate({
+          'stroke-width': 1
+        }, 400, 'linear');
       });
       currentMargin = currentMargin + xmargin;
       return currentMargin;

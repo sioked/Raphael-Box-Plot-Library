@@ -7,7 +7,7 @@ Raphael ->
     vticks : 15 #number of vertical tickets
     boxwidth : 15
     textAttrs: [
-      stroke: "#FFF"
+      fill : "#FFF"
     ]
     defaultAttrs: [
       stroke: "#FFF"

@@ -9,7 +9,7 @@
       boxwidth: 15,
       textAttrs: [
         {
-          stroke: "#FFF"
+          fill: "#FFF"
         }
       ],
       defaultAttrs: [
