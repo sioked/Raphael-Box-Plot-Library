@@ -238,7 +238,7 @@
         var _ref2;
         if ((_ref2 = r.reference) != null) {
           _ref2.animate({
-            'opacity': 0
+            'opacity': 0.2
           }, 400, 'linear');
         }
         titles.stop().animate({

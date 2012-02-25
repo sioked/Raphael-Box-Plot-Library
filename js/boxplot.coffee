@@ -176,7 +176,7 @@ boxplot.drawData = (data) ->
       referenceLine = r.reference?.getPointAtLength(0)
       
       hoverBox.mouseover ->
-        r.reference?.animate {'opacity': 0}, 400, 'linear'
+        r.reference?.animate {'opacity': 0.2}, 400, 'linear'
         titles.stop().animate { 'opacity': 1 }, 400, 'linear'
         box.stop().animate { 'stroke': "#FFF", "stroke-width":2}, 400, 'linear'
         vertLine.stop().animate {'stroke-width' : 2}, 400, 'linear'
