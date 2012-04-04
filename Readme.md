@@ -4,4 +4,4 @@ This is a raphael box plot library written in CoffeeScript. Currently, all param
 
 Your data must be calculated before using the code - the server should calculate the min, median, max, and 25th quartile and 75th quartile before setting on the script. The library will do the rest.
 
-For an example, see [edsiok.com/boxplot/](http://www.edsiok.com/boxplot/)
+For an example, see [http://hustle.slalomchi.com/#/results/2](http://hustle.slalomchi.com/#/results/2)
